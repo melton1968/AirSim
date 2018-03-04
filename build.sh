@@ -8,11 +8,11 @@ set -e
 # set -x
 
 # check for libc++
-if [[ !(-d "./llvm-build/output/lib") ]]; then
-    echo "ERROR: clang++ and libc++ is necessary to compile AirSim and run it in Unreal engine"
-    echo "Please run setup.sh first."
-    exit 1
-fi
+# if [[ !(-d "./llvm-build/output/lib") ]]; then
+#     echo "ERROR: clang++ and libc++ is necessary to compile AirSim and run it in Unreal engine"
+#     echo "Please run setup.sh first."
+#     exit 1
+# fi
 
 # check for rpclib
 if [ ! -d "./external/rpclib/rpclib-2.2.1" ]; then
@@ -21,20 +21,23 @@ if [ ! -d "./external/rpclib/rpclib-2.2.1" ]; then
     exit 1
 fi
 
-# check for cmake build
-if [ ! -d "./cmake_build" ]; then
-    echo "ERROR: cmake build was not found."
-    echo "please run setup.sh first and then run build.sh again."
-    exit 1
-fi
+# # check for cmake build
+# if [ ! -d "./cmake_build" ]; then
+#     echo "ERROR: cmake build was not found."
+#     echo "please run setup.sh first and then run build.sh again."
+#     exit 1
+# fi
 
 
 # set up paths of clang compiler
 if [ "$(uname)" == "Darwin" ]; then
-    CMAKE="$(greadlink -f cmake_build/bin/cmake)"
+    # CMAKE="$(greadlink -f cmake_build/bin/cmake)"
 
-    export CC=/usr/local/opt/llvm\@3.9/bin/clang
-    export CXX=/usr/local/opt/llvm\@3.9/bin/clang++
+    # export CC=/usr/local/opt/llvm\@3.9/bin/clang
+    # export CXX=/usr/local/opt/llvm\@3.9/bin/clang++
+    CMAKE=/opt/local/bin/cmake
+    CC=/opt/local/bin/clang-mp-3.9
+    CXX=/opt/local/bin/clang++-mp-3.9
 else
     CMAKE="$(readlink -f cmake_build/bin/cmake)"
 

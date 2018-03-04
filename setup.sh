@@ -21,13 +21,18 @@ if [ "$(uname)" == "Darwin" ]; then
 
     #below takes way too long
     # brew install llvm@3.9
-    brew install --force-bottle llvm@3.9
 
-    brew install wget
-    brew install coreutils
+    ## CHANGES
+    # brew install --force-bottle llvm@3.9
 
-    export C_COMPILER=/usr/local/opt/llvm\@3.9/bin/clang
-    export COMPILER=/usr/local/opt/llvm\@3.9/bin/clang++
+    # brew install wget
+    # brew install coreutils
+
+    # export C_COMPILER=/usr/local/opt/llvm\@3.9/bin/clang
+    # export COMPILER=/usr/local/opt/llvm\@3.9/bin/clang++
+
+    export C_COMPILER=/opt/local/bin/clang-mp-3.9
+    export COMPILER=/opt/local/bin/clang++-mp-3.9
 else
     if [[ ! -z "${whoami}" ]]; then #this happens when running in travis
         sudo /usr/sbin/useradd -G dialout $USER
@@ -45,22 +50,23 @@ else
 fi
 
 #download cmake - we need v3.9+ which is not available in Ubuntu 16.04
-if [[ ! -d "cmake_build/bin" ]]; then
-    echo "Downloading cmake..."
-    wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz \
-        -O cmake.tar.gz
-    tar -xzf cmake.tar.gz
-    rm cmake.tar.gz
-    rm -rf ./cmake_build
-    mv ./cmake-3.10.2 ./cmake_build
-    pushd cmake_build
-    ./bootstrap
-    make
-    popd
-fi
+# if [[ ! -d "cmake_build/bin" ]]; then
+#     echo "Downloading cmake..."
+#     wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz \
+#         -O cmake.tar.gz
+#     tar -xzf cmake.tar.gz
+#     rm cmake.tar.gz
+#     rm -rf ./cmake_build
+#     mv ./cmake-3.10.2 ./cmake_build
+#     pushd cmake_build
+#     ./bootstrap
+#     make
+#     popd
+# fi
 
 if [ "$(uname)" == "Darwin" ]; then
-    CMAKE="$(greadlink -f cmake_build/bin/cmake)"
+    # CMAKE="$(greadlink -f cmake_build/bin/cmake)"
+    CMAKE=/opt/local/bin/cmake
 else
     CMAKE="$(readlink -f cmake_build/bin/cmake)"
 fi
@@ -117,41 +123,42 @@ fi
 # #sudo apt-get install -y clang-3.9-doc libclang-common-3.9-dev libclang-3.9-dev libclang1-3.9 libclang1-3.9-dbg libllvm-3.9-ocaml-dev libllvm3.9 libllvm3.9-dbg lldb-3.9 llvm-3.9 llvm-3.9-dev llvm-3.9-doc llvm-3.9-examples llvm-3.9-runtime clang-format-3.9 python-clang-3.9 libfuzzer-3.9-dev
 
 #get libc++ source
-if [[ ! -d "llvm-source-39" ]]; then 
-    git clone --depth=1 -b release_39  https://github.com/llvm-mirror/llvm.git llvm-source-39
-    git clone --depth=1 -b release_39  https://github.com/llvm-mirror/libcxx.git llvm-source-39/projects/libcxx
-    git clone --depth=1 -b release_39  https://github.com/llvm-mirror/libcxxabi.git llvm-source-39/projects/libcxxabi
-else
-    echo "folder llvm-source already exists, skipping git clone..."
-fi
 
-#build libc++
-if [ "$(uname)" == "Darwin" ]; then
-    rm -rf llvm-build
-else
-    sudo rm -rf llvm-build
-fi
-mkdir -p llvm-build
-pushd llvm-build >/dev/null
+# if [[ ! -d "llvm-source-39" ]]; then 
+#     git clone --depth=1 -b release_39  https://github.com/llvm-mirror/llvm.git llvm-source-39
+#     git clone --depth=1 -b release_39  https://github.com/llvm-mirror/libcxx.git llvm-source-39/projects/libcxx
+#     git clone --depth=1 -b release_39  https://github.com/llvm-mirror/libcxxabi.git llvm-source-39/projects/libcxxabi
+# else
+#     echo "folder llvm-source already exists, skipping git clone..."
+# fi
+
+# #build libc++
+# if [ "$(uname)" == "Darwin" ]; then
+#     rm -rf llvm-build
+# else
+#     sudo rm -rf llvm-build
+# fi
+# mkdir -p llvm-build
+# pushd llvm-build >/dev/null
 
 
-"$CMAKE" -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${COMPILER} \
-      -LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=OFF -DLIBCXX_INSTALL_EXPERIMENTAL_LIBRARY=OFF \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=./output \
-            ../llvm-source-39
+# "$CMAKE" -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${COMPILER} \
+#       -LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=OFF -DLIBCXX_INSTALL_EXPERIMENTAL_LIBRARY=OFF \
+#       -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=./output \
+#             ../llvm-source-39
 
-make cxx
+# make cxx
 
-#install libc++ locally in output folder
-if [ "$(uname)" == "Darwin" ]; then
-    make install-libcxx install-libcxxabi 
-else
-    sudo make install-libcxx install-libcxxabi 
-fi
+# #install libc++ locally in output folder
+# if [ "$(uname)" == "Darwin" ]; then
+#     make install-libcxx install-libcxxabi 
+# else
+#     sudo make install-libcxx install-libcxxabi 
+# fi
 
-popd >/dev/null
+# popd >/dev/null
 
-#install EIGEN library
+#Install EIGEN library
 
 if [ "$(uname)" == "Darwin" ]; then
     rm -rf ./AirLib/deps/eigen3/Eigen
